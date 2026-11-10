@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Tour · Round 4</title>
+<meta name="description" content="A 47-second tour of every round in 4 GB and a Dream, recorded and edited in Claude's cloud workspace. No video software on the laptop.">
+<meta name="theme-color" content="#0A1F2E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=JetBrains+Mono:wght@600&family=Source+Serif+4:wght@400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; color: #E8E0CC; font-family: "Source Serif 4", Georgia, serif; background-color: #0A1F2E;
+    background-image: linear-gradient(rgba(31,181,183,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(31,181,183,0.035) 1px, transparent 1px); background-size: 48px 48px; }
+  main { max-width: 900px; margin: 0 auto; padding: 36px 18px 48px; }
+  .mono { font-family: "JetBrains Mono", monospace; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; color: #81D8D5; }
+  h1 { font-family: "Cinzel", Georgia, serif; font-weight: 700; text-transform: uppercase; font-size: clamp(1.7rem, 6vw, 2.4rem); margin: 8px 0 10px; }
+  video { width: 100%; height: auto; border-radius: 10px; border: 2px solid #1FB5B7; background: #000; }
+  .note { background: #F1E8D2; color: #17262E; border-radius: 10px; padding: 14px 16px; margin-top: 18px; }
+  .note p { margin: 0 0 8px; color: #455660; } .note p:last-child { margin: 0; }
+  a { color: #1FB5B7; } .note a { color: #0E6264; }
+  footer { margin-top: 26px; padding-top: 14px; border-top: 1px solid rgba(232,224,204,0.18); text-align: center; }
+</style>
+</head>
+<body>
+<main>
+  <p class="mono">§ Round 04 · 4 GB and a Dream</p>
+  <h1>The tour</h1>
+  <p>Every round, in 47 seconds. No sound.</p>
+  <video controls playsinline preload="metadata" src="4gb-tour.mp4" aria-label="A 47-second tour: the 4 GB and a Dream landing page, Necesito's bilingual buttons being pressed, the 3D papel picado flags being spun, the bootstrapping path diagram stepping through with the Wi-Fi dropped and restored, then back to the landing page."></video>
+  <div class="note">
+    <p><strong>How it was made:</strong> Claude drove a browser in its cloud workspace with a script, recorded it, and encoded the MP4 with ffmpeg. Nothing was recorded or edited on the Chromebook. It only plays the result.</p>
+    <p><strong>What's honest about it:</strong> it was recorded from the repo files, which are the same files GitHub Pages serves. Necesito uses a demo number, and the tap stops at the button: a browser can't film Messages opening. The 3D frame-rate meter is hidden, because it would show the recording machine, not the Chromebook.</p>
+    <p>The recording script is in the repo: <a href="https://github.com/earlgreyhot1701D/4gb-and-a-dream/blob/main/scripts/record_tour.py">scripts/record_tour.py</a>.</p>
+  </div>
+  <footer><span class="mono">Part of <a href="../">4 GB and a Dream</a> · Evidence precedes conclusions</span></footer>
+</main>
+</body>
+</html>

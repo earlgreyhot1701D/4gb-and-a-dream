@@ -15,7 +15,7 @@ This is the companion repo for the dev.to article *A Small Laptop Is a Full Buil
 | 1 | [Necesito](https://github.com/earlgreyhot1701D/necesito) | A live app with no editor | Its own repo |
 | 2 | Papel picado, in 3D | Interactive 3D, drawn by the laptop you're on | `round-2-3d/` |
 | 3 | The bootstrapping path | An animated diagram of every step, with a "What if the Wi-Fi drops?" button | `round-3-diagram/` |
-| 4 | Demo video | Made without video software | Coming soon |
+| 4 | The tour | A 47-second video of every round, recorded and edited in the cloud | `round-4-video/` |
 
 ## The kit
 
@@ -48,6 +48,15 @@ Six steps from a laptop to a live link, colored by where each one runs: on the l
 - Styled in the [Clew Labs](https://clewlabs.org) colors. The thread is the clew.
 - Plain HTML, CSS, and a little JavaScript. No libraries.
 - Respects **reduced motion**: it starts paused and the moving dashes stay still.
+
+## Round 4: The tour
+
+A 47-second, silent tour of every round. Claude drove a headless browser from a script, recorded it, and encoded it with ffmpeg, all in its cloud workspace. The Chromebook only plays it.
+
+- Recorded from the repo files, the same files GitHub Pages serves, because the cloud workspace can't reach github.io.
+- Necesito uses a demo number, and the tap stops at the button. A browser can't film Messages opening.
+- The 3D frame-rate meter is hidden in the video, since it would show the recording machine, not the Chromebook.
+- The script is `scripts/record_tour.py`. A GIF copy for dev.to is in `assets/article/`.
 
 ## Credits
 
