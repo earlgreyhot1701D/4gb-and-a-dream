@@ -9,13 +9,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=JetBrains+Mono:wght@500;600&family=Source+Serif+4:wght@400;600&display=swap" rel="stylesheet">
 <style>
   :root { --navy: #0A1F2E; --cream: #E8E0CC; --turq: #1FB5B7; --mint: #81D8D5; --ember: #E85A1F; --parch: #F1E8D2; --card-ink: #17262E; --card-ink2: #455660;
-    --pink: #e6007e; --orange: #E85A1F; --lime: #6fb22c; }
+  }
   * { box-sizing: border-box; }
   body { margin: 0; color: var(--cream); font-family: "Source Serif 4", Georgia, serif; background-color: var(--navy);
     background-image: linear-gradient(rgba(31,181,183,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(31,181,183,0.035) 1px, transparent 1px); background-size: 48px 48px; }
   main { max-width: 640px; margin: 0 auto; padding: 40px 20px 48px; }
   h1 { font-family: "Cinzel", Georgia, serif; font-weight: 700; text-transform: uppercase; font-size: clamp(2rem, 7vw, 2.8rem); line-height: 1.05; margin: 0 0 10px; letter-spacing: 0.02em; }
   .sub { font-size: 1.1rem; margin: 0 0 28px; }
+  .sub em { color: var(--mint); }
   ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
   a.round, span.round { display: block; padding: 16px 18px; border-radius: 10px; border-left: 6px solid var(--c); background: var(--parch); color: var(--card-ink); text-decoration: none; }
   a.round:hover { box-shadow: 0 0 0 3px rgba(31,181,183,0.35); }
@@ -33,16 +34,15 @@
 <main>
   <p class="mono">§ A Clew Labs field kit</p>
   <h1>4 GB and a Dream</h1>
-  <p class="sub">How far can a 4 GB Chromebook go? Every build here was made from one, with Claude and GitHub, no IDE and nothing installed.</p>
+  <p class="sub"><em>How far can a 4 GB Chromebook go?</em> Every build here was made from one, with Claude and GitHub, no IDE and nothing installed.</p>
   <ol>
-    <li><a class="round" style="--c: var(--pink)" href="https://github.com/earlgreyhot1701D/necesito"><span class="num">Round 1</span><span class="name">Necesito</span><span class="what">A live app with no editor: a bilingual sick-day bell</span></a></li>
-    <li><a class="round" style="--c: var(--turq)" href="round-2-3d/"><span class="num">Round 2</span><span class="name">Papel picado, in 3D</span><span class="what">Interactive 3D, drawn by the laptop you're on</span></a></li>
-    <li><a class="round" style="--c: var(--orange)" href="round-3-diagram/"><span class="num">Round 3</span><span class="name">The bootstrapping path</span><span class="what">An animated diagram, with a "What if the Wi-Fi drops?" button</span></a></li>
-    <li><span class="round soon" style="--c: var(--lime)"><span class="num">Round 4 · coming soon</span><span class="name">Demo video</span><span class="what">Made without video software</span></span></li>
+    <li><a class="round" style="--c: var(--ember)" href="https://github.com/earlgreyhot1701D/necesito"><span class="num">§ 01 · Round 1</span><span class="name">Necesito</span><span class="what">A live app with no editor: a bilingual sick-day bell</span></a></li>
+    <li><a class="round" style="--c: var(--turq)" href="round-2-3d/"><span class="num">§ 02 · Round 2</span><span class="name">Papel picado, in 3D</span><span class="what">Interactive 3D, drawn by the laptop you're on</span></a></li>
+    <li><a class="round" style="--c: var(--mint)" href="round-3-diagram/"><span class="num">§ 03 · Round 3</span><span class="name">The bootstrapping path</span><span class="what">An animated diagram, with a "What if the Wi-Fi drops?" button</span></a></li>
+    <li><span class="round soon" style="--c: var(--cream)"><span class="num">§ 04 · Round 4 · coming soon</span><span class="name">Demo video</span><span class="what">Made without video software</span></span></li>
   </ol>
   <footer>
-    <p>Idea by <a href="https://dev.to/alexshev">Alex Shev</a>. Built by <a href="https://dev.to/earlgreyhot1701d">L. Cordero</a>.</p>
-    <p>Built by <a href="https://clewlabs.org">Clew Labs</a>.</p>
+    <p>Idea by <a href="https://dev.to/alexshev">Alex Shev</a>. Built by <a href="https://dev.to/earlgreyhot1701d">L. Cordero</a> at <a href="https://clewlabs.org">Clew Labs</a>.</p>
     <p class="mono">Evidence precedes conclusions. AI assisted. Human approved.</p>
   </footer>
 </main>
