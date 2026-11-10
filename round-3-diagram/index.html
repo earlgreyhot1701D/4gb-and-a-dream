@@ -40,7 +40,9 @@
   button[aria-pressed="true"].ghost { background: var(--ember); border-color: var(--ember); color: var(--navy); }
   button:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
 
-  .caption { min-height: 3.4em; margin: 0 0 22px; padding: 12px 14px; border-left: 3px solid var(--turq); background: rgba(31,181,183,0.08); font-size: 1.02rem; }
+  .dock { position: sticky; top: 0; z-index: 10; margin: 0 -18px 22px; padding: 12px 18px 10px; background: rgba(10,31,46,0.94); backdrop-filter: blur(4px); border-bottom: 1px solid rgba(232,224,204,0.12); }
+  .dock .controls { margin-bottom: 10px; }
+  .caption { min-height: 3.4em; margin: 0; padding: 12px 14px; border-left: 3px solid var(--turq); background: rgba(31,181,183,0.08); font-size: 1.02rem; }
 
   /* The path: a track, a glowing thread that grows to the current step, and a spark at its tip */
   .path { position: relative; }
@@ -99,6 +101,7 @@
     <span class="tag t-github">On GitHub</span>
   </div>
 
+  <div class="dock">
   <div class="controls">
     <button id="next" type="button">Next step →</button>
     <button id="play" class="ghost" type="button" aria-pressed="false">Autoplay</button>
@@ -106,6 +109,7 @@
   </div>
 
   <p class="caption" id="caption" aria-live="polite">Press Next step to follow the thread.</p>
+  </div>
 
   <div class="path" id="path">
     <span class="track" aria-hidden="true"></span>
@@ -193,6 +197,12 @@
     return step.offsetTop + node.offsetTop + node.offsetHeight / 2;
   }
 
+  var firstRender = true;
+  function scrollToStep(el) {
+    if (firstRender) return;
+    try { el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" }); } catch (e) { el.scrollIntoView(); }
+  }
+
   function render() {
     var atLoop = i === steps.length;
     var target = atLoop ? steps.length - 1 : i;
@@ -211,6 +221,8 @@
     cutline.style.height = Math.max(0, c1 - c0) + "px";
     loop.classList.toggle("active", atLoop);
     caption.textContent = (offline ? OFFLINE : CAPTIONS)[i];
+    scrollToStep(atLoop ? loop : steps[i]);
+    firstRender = false;
   }
 
   function advance() {
@@ -236,7 +248,7 @@
     if (offline) { render(); }
     else { caption.textContent = "Wi-Fi's back. Everything Claude did while you were gone is waiting in the chat and on GitHub."; }
   });
-  window.addEventListener("resize", render);
+  window.addEventListener("resize", function () { firstRender = true; render(); });
 
   render();
   caption.textContent = "Press Next step to follow the thread.";
