@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bootstrapping Path · Round 3</title>
+<meta name="description" content="An animated diagram of how a 4 GB Chromebook ships a live app with Claude and GitHub: what runs on the laptop, what runs in the cloud, and what happens when the Wi-Fi drops.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #fff8ee; --ink: #2b1b2e;
+    --pink: #e6007e; --turq: #00a3a3; --orange: #f47b20; --lime: #6fb22c; --purple: #7a3fa0; --yellow: #e0a800;
+    --laptop: #e6007e; --cloud: #00a3a3; --github: #7a3fa0;
+    --off: #c9bfae;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Nunito", system-ui, sans-serif; }
+  main { max-width: 620px; margin: 0 auto; padding: 32px 18px 48px; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-size: clamp(1.9rem, 6vw, 2.6rem); line-height: 1.05; margin: 0 0 6px; color: var(--pink); }
+  .sub { margin: 0 0 18px; font-size: 1.02rem; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 10px 16px; margin: 0 0 18px; font-size: 0.9rem; font-weight: 800; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 18px; }
+  button { font: inherit; font-weight: 800; font-size: 0.95rem; padding: 10px 16px; border-radius: 999px; border: 3px solid var(--ink); background: #fff; color: var(--ink); cursor: pointer; }
+  button:focus-visible { outline: 3px solid var(--yellow); outline-offset: 2px; }
+  button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+
+  .caption { min-height: 3.2em; padding: 12px 14px; border-radius: 14px; background: #fff; border: 2px dashed var(--off); font-weight: 800; margin: 0 0 18px; }
+
+  .path { position: relative; list-style: none; margin: 0; padding: 0 0 0 0; }
+  .step { position: relative; display: grid; grid-template-columns: 54px 1fr; gap: 14px; align-items: start; padding-bottom: 26px; }
+  .step:last-child { padding-bottom: 0; }
+  .dot { width: 54px; height: 54px; border-radius: 16px; display: grid; place-items: center; font-size: 1.6rem; background: #fff; border: 3px solid var(--c); box-shadow: 0 4px 0 var(--c); transition: transform 0.25s, background 0.25s; position: relative; z-index: 1; }
+  .card { background: #fff; border-radius: 16px; border: 3px solid transparent; padding: 10px 14px; transition: border-color 0.25s, box-shadow 0.25s; }
+  .where { font-size: 0.75rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c); }
+  .title { display: block; font-family: "Fraunces", Georgia, serif; font-size: 1.25rem; margin: 2px 0; }
+  .who { font-size: 0.92rem; }
+
+  /* connector line down the left, between dots */
+  .step:not(:last-child)::after { content: ""; position: absolute; left: 25px; top: 58px; bottom: 2px; width: 4px; border-radius: 2px;
+    background: repeating-linear-gradient(to bottom, var(--c) 0 8px, transparent 8px 14px); background-size: 4px 14px; opacity: 0.35; }
+  .step.flow:not(:last-child)::after { opacity: 1; animation: flow 0.7s linear infinite; }
+  @keyframes flow { to { background-position: 0 14px; } }
+
+  .step.active .dot { transform: scale(1.12); background: var(--c); }
+  .step.active .card { border-color: var(--c); box-shadow: 0 4px 0 var(--c); }
+
+  /* Wi-Fi dropped: laptop link cut */
+  .offline .step.laptop-link:not(:last-child)::after { background: repeating-linear-gradient(to bottom, #d33 0 6px, transparent 6px 14px); opacity: 1; animation: none; }
+  .offline .step.on-laptop .dot { filter: grayscale(1); opacity: 0.6; }
+  .offline .step.on-laptop .card { opacity: 0.6; }
+  .cut { display: none; position: absolute; left: 6px; top: 66px; z-index: 2; background: #d33; color: #fff; font-size: 0.72rem; font-weight: 800; padding: 3px 7px; border-radius: 999px; white-space: nowrap; }
+  .offline .cut { display: block; }
+
+  .loop { margin: 22px 0 0; padding: 12px 14px; border-radius: 14px; border: 3px solid var(--yellow); background: #fff; font-weight: 800; }
+  .loop.active { box-shadow: 0 4px 0 var(--yellow); }
+
+  footer { margin-top: 26px; font-size: 0.92rem; }
+  footer a { color: var(--purple); font-weight: 800; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .step.flow:not(:last-child)::after { animation: none; }
+    .dot, .card { transition: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>The bootstrapping path</h1>
+  <p class="sub">Round 3 · How a 4 GB Chromebook ships a live app. Only two steps happen on the laptop.</p>
+
+  <div class="legend" aria-label="Color key">
+    <span><i style="background: var(--laptop)"></i>On the laptop</span>
+    <span><i style="background: var(--cloud)"></i>In Claude's cloud workspace</span>
+    <span><i style="background: var(--github)"></i>On GitHub</span>
+  </div>
+
+  <div class="controls">
+    <button id="play" type="button" aria-pressed="true">Pause</button>
+    <button id="next" type="button">Next step</button>
+    <button id="wifi" type="button" aria-pressed="false">Drop the Wi-Fi</button>
+  </div>
+
+  <p class="caption" id="caption" aria-live="polite">Press Next step, or let it play.</p>
+
+  <ol class="path" id="path">
+    <li class="step on-laptop laptop-link" style="--c: var(--laptop)">
+      <div class="dot" aria-hidden="true">💻</div>
+      <div class="card"><span class="where">On the laptop</span><span class="title">Describe it</span><span class="who">You type what you want into a Claude chat in Chrome. Nothing to install.</span></div>
+      <span class="cut" aria-hidden="true">Wi-Fi down</span>
+    </li>
+    <li class="step" style="--c: var(--cloud)">
+      <div class="dot" aria-hidden="true">💬</div>
+      <div class="card"><span class="where">In the cloud</span><span class="title">Decide it</span><span class="who">Claude asks one question at a time. You pick. The answers become the spec.</span></div>
+    </li>
+    <li class="step" style="--c: var(--cloud)">
+      <div class="dot" aria-hidden="true">🛠️</div>
+      <div class="card"><span class="where">In the cloud</span><span class="title">Build it</span><span class="who">Claude writes the code, runs it, and takes screenshots to check its own work.</span></div>
+    </li>
+    <li class="step" style="--c: var(--github)">
+      <div class="dot" aria-hidden="true">📦</div>
+      <div class="card"><span class="where">On GitHub</span><span class="title">Push it</span><span class="who">You approve access to one repo. Claude commits and pushes from the chat.</span></div>
+    </li>
+    <li class="step" style="--c: var(--github)">
+      <div class="dot" aria-hidden="true">🌐</div>
+      <div class="card"><span class="where">On GitHub</span><span class="title">Ship it</span><span class="who">You turn on GitHub Pages: Settings, Pages, main, Save. About a minute later, it's live.</span></div>
+    </li>
+    <li class="step on-laptop" style="--c: var(--laptop)">
+      <div class="dot" aria-hidden="true">👀</div>
+      <div class="card"><span class="where">On the laptop</span><span class="title">See it</span><span class="who">You open the link. This is the only other step your laptop does.</span></div>
+    </li>
+  </ol>
+
+  <p class="loop" id="loop">↺ The feedback loop: see it, ask for a change in the chat, and go around again.</p>
+
+  <footer>
+    <p>Part of <a href="../">4 GB and a Dream</a>. Idea by <a href="https://dev.to/alexshev">Alex Shev</a>.</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var steps = Array.prototype.slice.call(document.querySelectorAll(".step"));
+  var loop = document.getElementById("loop");
+  var caption = document.getElementById("caption");
+  var playBtn = document.getElementById("play");
+  var nextBtn = document.getElementById("next");
+  var wifiBtn = document.getElementById("wifi");
+  var path = document.getElementById("path");
+
+  var CAPTIONS = [
+    "Step 1, on the laptop: you describe what you want in a chat.",
+    "Step 2, in the cloud: Claude interviews you and the choices become the plan.",
+    "Step 3, in the cloud: Claude writes and tests the code. The laptop is idle.",
+    "Step 4, on GitHub: Claude pushes every commit from the chat.",
+    "Step 5, on GitHub: Pages turns the repo into a live link.",
+    "Step 6, on the laptop: you open the link and see it.",
+    "Then the loop: ask for a change, and go around again."
+  ];
+  var OFFLINE_CAPTIONS = [
+    "Wi-Fi down. Your laptop is cut off, but the work already started in the cloud.",
+    "Wi-Fi down. Claude keeps going in the cloud.",
+    "Wi-Fi down. Still building in the cloud.",
+    "Wi-Fi down. Commits still reach GitHub from the cloud.",
+    "Wi-Fi down. If Pages is already on, the live page updates by itself.",
+    "Wi-Fi down. You can't see it yet. It's waiting for you.",
+    "Wi-Fi down. When it comes back, everything's there."
+  ];
+
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  var i = -1, playing = !reduceMotion, offline = false, timer = 0;
+  if (!playing) { playBtn.textContent = "Play"; playBtn.setAttribute("aria-pressed", "false"); }
+
+  function render() {
+    for (var k = 0; k < steps.length; k++) {
+      steps[k].classList.toggle("active", k === i);
+      steps[k].classList.toggle("flow", k < i || (i === steps.length && k < steps.length));
+    }
+    loop.classList.toggle("active", i === steps.length);
+    var list = offline ? OFFLINE_CAPTIONS : CAPTIONS;
+    if (i >= 0) caption.textContent = list[i];
+  }
+
+  function advance() {
+    i = (i + 1) % (steps.length + 1);
+    // While offline, skip the laptop-only steps: the cloud keeps going without them
+    if (offline && (i === 0 || i === steps.length - 1)) {
+      if (i === 0) i = 1;
+      else i = steps.length - 1; // show "waiting for you" on the last laptop step
+    }
+    render();
+  }
+
+  function schedule() {
+    clearInterval(timer);
+    if (playing) timer = setInterval(advance, 2200);
+  }
+
+  playBtn.addEventListener("click", function () {
+    playing = !playing;
+    playBtn.textContent = playing ? "Pause" : "Play";
+    playBtn.setAttribute("aria-pressed", playing ? "true" : "false");
+    schedule();
+  });
+  nextBtn.addEventListener("click", function () { advance(); schedule(); });
+  wifiBtn.addEventListener("click", function () {
+    offline = !offline;
+    path.classList.toggle("offline", offline);
+    wifiBtn.textContent = offline ? "Bring the Wi-Fi back" : "Drop the Wi-Fi";
+    wifiBtn.setAttribute("aria-pressed", offline ? "true" : "false");
+    if (!offline) {
+      caption.textContent = "Wi-Fi's back. Everything Claude did while you were gone is waiting in the chat and on GitHub.";
+    } else {
+      render();
+    }
+  });
+
+  advance();
+  schedule();
+})();
+</script>
+</body>
+</html>
