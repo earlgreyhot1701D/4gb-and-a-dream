@@ -43,7 +43,7 @@ Building happened in the cloud. Drawing happens on your device, so this round is
 Six steps from a laptop to a live link, colored by where each one runs: on the laptop, in Claude's cloud workspace, or on GitHub. Only two of the six happen on the laptop.
 
 - **Play, pause, or step through** with the buttons. Captions are read aloud by screen readers.
-- **What if the Wi-Fi drops?** cuts the laptop's link and shows the cloud steps carrying on without it, which is what happened during the Necesito build.
+- **What if the Wi-Fi drops?** cuts the laptop's link and shows the cloud steps carrying on without it, like when my Wi-Fi dropped once during the Necesito build.
 - A glowing **thread** unspools to the current step, so your eye follows the path. Steps behind it fill in, and steps ahead stay dim.
 - Styled in the [Clew Labs](https://clewlabs.org) colors. The thread is the clew.
 - Plain HTML, CSS, and a little JavaScript. No libraries.
