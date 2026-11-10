@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4 GB and a Dream</title>
+<meta name="description" content="How far can a 4 GB Chromebook go? A bootstrapping kit built with Claude and GitHub, no IDE and nothing installed.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root { --paper: #fff8ee; --ink: #2b1b2e; --pink: #e6007e; --turq: #00a3a3; --orange: #f47b20; --lime: #6fb22c; --purple: #7a3fa0; --yellow: #e0a800; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: "Nunito", system-ui, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 40px 20px 48px; }
+  h1 { font-family: "Fraunces", Georgia, serif; font-size: clamp(2.2rem, 7vw, 3.2rem); line-height: 1.05; margin: 0 0 8px; color: var(--pink); }
+  .sub { font-size: 1.1rem; margin: 0 0 28px; }
+  ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  a.round { display: block; padding: 18px 20px; border-radius: 18px; border: 3px solid var(--c); background: #fff; color: var(--ink); text-decoration: none; box-shadow: 0 5px 0 var(--c); }
+  a.round:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+  a.round:active { transform: translateY(4px); box-shadow: 0 1px 0 var(--c); }
+  .num { font-weight: 800; font-size: 0.85rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--c); }
+  .name { display: block; font-family: "Fraunces", Georgia, serif; font-size: 1.4rem; margin-top: 2px; }
+  .what { display: block; margin-top: 4px; }
+  .soon { opacity: 0.55; pointer-events: none; }
+  footer { margin-top: 32px; font-size: 0.95rem; }
+  footer a { color: var(--purple); font-weight: 800; }
+</style>
+</head>
+<body>
+<main>
+  <h1>4 GB and a Dream</h1>
+  <p class="sub">How far can a 4 GB Chromebook go? Every build here was made from one, with Claude and GitHub, no IDE and nothing installed.</p>
+  <ol>
+    <li><a class="round" style="--c: var(--pink)" href="https://github.com/earlgreyhot1701D/necesito"><span class="num">Round 1</span><span class="name">Necesito</span><span class="what">A live app with no editor: a bilingual sick-day bell</span></a></li>
+    <li><a class="round" style="--c: var(--turq)" href="round-2-3d/"><span class="num">Round 2</span><span class="name">Papel picado, in 3D</span><span class="what">Interactive 3D, drawn by the laptop you're on</span></a></li>
+    <li><span class="round soon" style="--c: var(--orange)"><span class="num">Round 3 · coming soon</span><span class="name">The bootstrapping path</span><span class="what">An animated diagram</span></span></li>
+    <li><span class="round soon" style="--c: var(--lime)"><span class="num">Round 4 · coming soon</span><span class="name">Demo video</span><span class="what">Made without video software</span></span></li>
+  </ol>
+  <footer>
+    <p>Idea by <a href="https://dev.to/alexshev">Alex Shev</a>. Built by <a href="https://dev.to/earlgreyhot1701d">L. Cordero</a>.</p>
+    <p>AI assisted. Human approved. Powered by NLP.</p>
+  </footer>
+</main>
+</body>
+</html>

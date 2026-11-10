@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Papel Picado in 3D · Round 2</title>
+<meta name="description" content="An interactive 3D papel picado scene, built in the cloud from a 4 GB Chromebook. Drag to spin.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,900&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #1c1233; font-family: "Nunito", system-ui, sans-serif; color: #fff8ee; }
+  #scene { position: fixed; inset: 0; touch-action: none; cursor: grab; }
+  #scene:active { cursor: grabbing; }
+  .label { position: fixed; left: 20px; top: 18px; pointer-events: none; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+  .label h1 { margin: 0; font-family: "Fraunces", Georgia, serif; font-size: clamp(1.6rem, 5vw, 2.6rem); line-height: 1.05; }
+  .label p { margin: 6px 0 0; font-size: 0.95rem; opacity: 0.85; font-weight: 700; }
+  .hint { position: fixed; left: 0; right: 0; bottom: 18px; text-align: center; font-weight: 800; font-size: 0.95rem; opacity: 0.8; pointer-events: none; }
+  #scene:focus-visible { outline: 3px solid #f2b600; outline-offset: -3px; }
+  .meter { position: fixed; right: 16px; top: 18px; display: flex; flex-direction: column; align-items: flex-end; padding: 10px 14px; border-radius: 14px; background: rgba(28, 18, 51, 0.55); backdrop-filter: blur(4px); pointer-events: none; }
+  .meter-label, .meter-unit { font-size: 0.75rem; font-weight: 800; opacity: 0.8; }
+  .meter-num { font-family: "Fraunces", Georgia, serif; font-size: 2rem; line-height: 1.05; }
+  @media (max-width: 560px) { .meter { top: auto; bottom: 52px; } }
+  .fallback { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; text-align: center; padding: 24px; }
+</style>
+</head>
+<body>
+<canvas id="scene" tabindex="0" aria-label="Three strings of colorful papel picado flags with warm string lights, hanging across a dusk sky with a few stars, swaying in the wind. Drag or use the arrow keys to spin. Plus and minus zoom." role="img"></canvas>
+<div class="label">
+  <h1>Papel picado, in 3D</h1>
+  <p>Round 2 · built in the cloud from a 4 GB Chromebook</p>
+</div>
+<div class="hint" id="hint">Drag or use arrow keys to spin · Pinch, scroll, or + / − to zoom</div>
+<div class="meter" aria-live="off"><span class="meter-label">This laptop is drawing</span><span id="fps" class="meter-num">--</span><span class="meter-unit">frames per second</span></div>
+<div class="fallback" id="fallback"><p>This browser can't show 3D graphics. The scene is three strings of colorful papel picado flags swaying across a dusk sky.</p></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  if (typeof THREE === "undefined") { document.getElementById("fallback").style.display = "flex"; return; }
+
+  var reduceMotion = false;
+  try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
+
+  var canvas = document.getElementById("scene");
+  var renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
+  } catch (e) {
+    document.getElementById("fallback").style.display = "flex";
+    return;
+  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
+
+  var scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x1c1233, 14, 30);
+
+  // Dusk sky: a big sphere with a vertical gradient
+  var skyCanvas = document.createElement("canvas");
+  skyCanvas.width = 4; skyCanvas.height = 256;
+  var sctx = skyCanvas.getContext("2d");
+  var grad = sctx.createLinearGradient(0, 0, 0, 256);
+  grad.addColorStop(0, "#1c1233");
+  grad.addColorStop(0.55, "#5b2a6e");
+  grad.addColorStop(0.8, "#d9532c");
+  grad.addColorStop(1, "#f7b267");
+  sctx.fillStyle = grad; sctx.fillRect(0, 0, 4, 256);
+  var sky = new THREE.Mesh(
+    new THREE.SphereGeometry(60, 32, 16),
+    new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(skyCanvas), side: THREE.BackSide, fog: false })
+  );
+  scene.add(sky);
+
+  var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 200);
+
+  scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+  var sun = new THREE.DirectionalLight(0xffd7a8, 0.6);
+  sun.position.set(-4, 6, 8);
+  scene.add(sun);
+
+  // Flag texture: colored paper with a cut-out flower pattern (alpha holes)
+  var COLORS = ["#e6007e", "#00a3a3", "#f47b20", "#6fb22c", "#7a3fa0", "#f2b600"];
+  function flagTexture(color) {
+    var c = document.createElement("canvas");
+    c.width = 128; c.height = 160;
+    var g = c.getContext("2d");
+    g.fillStyle = color;
+    // scalloped bottom edge
+    g.beginPath();
+    g.moveTo(0, 0); g.lineTo(128, 0); g.lineTo(128, 130);
+    for (var i = 8; i >= 0; i--) {
+      var x = i * 16;
+      g.lineTo(x, i % 2 === 0 ? 130 : 156);
+    }
+    g.closePath(); g.fill();
+    // cut-outs
+    g.globalCompositeOperation = "destination-out";
+    function dot(x, y, r) { g.beginPath(); g.arc(x, y, r, 0, Math.PI * 2); g.fill(); }
+    dot(64, 64, 15);
+    for (var a = 0; a < 8; a++) {
+      var t = a / 8 * Math.PI * 2;
+      dot(64 + Math.cos(t) * 30, 64 + Math.sin(t) * 30, 7);
+    }
+    [[22, 22], [106, 22], [22, 106], [106, 106]].forEach(function (p) { dot(p[0], p[1], 6); });
+    for (var k = 0; k < 6; k++) dot(14 + k * 20, 122, 3);
+    var tex = new THREE.CanvasTexture(c);
+    tex.anisotropy = 4;
+    return tex;
+  }
+  var materials = COLORS.map(function (col) {
+    return new THREE.MeshLambertMaterial({ map: flagTexture(col), side: THREE.DoubleSide, alphaTest: 0.5, transparent: false });
+  });
+
+  // Three strings, each a sagging curve, with flags hanging from it
+  var flags = [];
+  var strings = [
+    { z: 0, y: 2.6, span: 12, sag: 1.0, count: 11 },
+    { z: -3, y: 3.6, span: 14, sag: 1.3, count: 13 },
+    { z: 3, y: 1.5, span: 10, sag: 0.8, count: 9 }
+  ];
+  var flagW = 0.85, flagH = 1.06;
+
+  strings.forEach(function (s, si) {
+    var pts = [];
+    for (var i = 0; i <= 40; i++) {
+      var u = i / 40, x = (u - 0.5) * s.span;
+      var y = s.y - s.sag * (1 - Math.pow(2 * u - 1, 2));
+      pts.push(new THREE.Vector3(x, y, s.z));
+    }
+    var line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0xfff8ee, transparent: true, opacity: 0.6 }));
+    scene.add(line);
+
+    for (var f = 0; f < s.count; f++) {
+      var u = (f + 0.5) / s.count;
+      var x = (u - 0.5) * s.span;
+      var y = s.y - s.sag * (1 - Math.pow(2 * u - 1, 2));
+      var geo = new THREE.PlaneGeometry(flagW, flagH, 6, 8);
+      geo.translate(0, -flagH / 2, 0); // hang from top edge
+      var mesh = new THREE.Mesh(geo, materials[(f + si * 2) % materials.length]);
+      mesh.position.set(x, y, s.z);
+      mesh.userData = { base: geo.attributes.position.array.slice(), phase: f * 0.7 + si * 1.9 };
+      scene.add(mesh);
+      flags.push(mesh);
+    }
+  });
+
+  // Stars: a few hundred points high on the sky dome
+  (function () {
+    var n = 260, arr = new Float32Array(n * 3), r = 55;
+    for (var i = 0; i < n; i++) {
+      var th = Math.random() * Math.PI * 2;
+      var ph = Math.random() * 0.5 * Math.PI * 0.85 + 0.12; // upper sky only
+      arr[i * 3] = r * Math.cos(ph) * Math.cos(th);
+      arr[i * 3 + 1] = r * Math.sin(ph);
+      arr[i * 3 + 2] = r * Math.cos(ph) * Math.sin(th);
+    }
+    var g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(arr, 3));
+    scene.add(new THREE.Points(g, new THREE.PointsMaterial({ color: 0xfff3d6, size: 0.35, sizeAttenuation: true, fog: false, transparent: true, opacity: 0.85 })));
+  })();
+
+  // Warm string lights: one glow sprite per bulb, drawn additively
+  var glowCanvas = document.createElement("canvas");
+  glowCanvas.width = glowCanvas.height = 64;
+  var gg = glowCanvas.getContext("2d");
+  var rg = gg.createRadialGradient(32, 32, 0, 32, 32, 32);
+  rg.addColorStop(0, "rgba(255,244,214,1)");
+  rg.addColorStop(0.25, "rgba(255,200,120,0.85)");
+  rg.addColorStop(1, "rgba(255,160,60,0)");
+  gg.fillStyle = rg; gg.fillRect(0, 0, 64, 64);
+  var glowMat = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(glowCanvas), blending: THREE.AdditiveBlending, depthWrite: false, transparent: true });
+  var bulbs = [];
+  strings.forEach(function (s, si) {
+    var n = s.count + 1;
+    for (var b = 0; b <= n; b++) {
+      var u = b / n, x = (u - 0.5) * s.span;
+      var y = s.y - s.sag * (1 - Math.pow(2 * u - 1, 2));
+      var sp = new THREE.Sprite(glowMat);
+      sp.position.set(x, y + 0.02, s.z + 0.05);
+      sp.scale.set(0.4, 0.4, 1);
+      sp.userData = { phase: b * 1.3 + si };
+      scene.add(sp);
+      bulbs.push(sp);
+    }
+  });
+
+  // Simple drag-to-orbit and wheel/pinch zoom, no extra libraries
+  var yaw = 0.35, pitch = 0.12, dist = 13, targetYaw = yaw, targetPitch = pitch, targetDist = dist;
+  var dragging = false, lastX = 0, lastY = 0, lastInteract = 0;
+  var pointers = {};
+  var pinchStart = 0, pinchDist = dist;
+
+  function placeCamera() {
+    camera.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, 1.8 + Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist);
+    camera.lookAt(0, 1.6, 0);
+  }
+  function hideHint() { /* hint stays visible on purpose: instructions should not vanish */ }
+
+  canvas.addEventListener("pointerdown", function (e) {
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+    var ids = Object.keys(pointers);
+    if (ids.length === 1) { dragging = true; lastX = e.clientX; lastY = e.clientY; }
+    if (ids.length === 2) {
+      var a = pointers[ids[0]], b = pointers[ids[1]];
+      pinchStart = Math.hypot(a.x - b.x, a.y - b.y); pinchDist = targetDist; dragging = false;
+    }
+    lastInteract = performance.now(); hideHint();
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!pointers[e.pointerId]) return;
+    pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(pointers);
+    if (ids.length === 2 && pinchStart > 0) {
+      var a = pointers[ids[0]], b = pointers[ids[1]];
+      var d = Math.hypot(a.x - b.x, a.y - b.y);
+      targetDist = Math.max(7, Math.min(22, pinchDist * pinchStart / d));
+    } else if (dragging) {
+      targetYaw -= (e.clientX - lastX) * 0.008;
+      targetPitch = Math.max(-0.35, Math.min(0.75, targetPitch + (e.clientY - lastY) * 0.005));
+      lastX = e.clientX; lastY = e.clientY;
+    }
+    lastInteract = performance.now();
+  });
+  function endPointer(e) { delete pointers[e.pointerId]; if (Object.keys(pointers).length === 0) { dragging = false; pinchStart = 0; } }
+  canvas.addEventListener("pointerup", endPointer);
+  canvas.addEventListener("pointercancel", endPointer);
+  canvas.addEventListener("wheel", function (e) {
+    e.preventDefault();
+    targetDist = Math.max(7, Math.min(22, targetDist + e.deltaY * 0.01));
+    lastInteract = performance.now(); hideHint();
+  }, { passive: false });
+
+  canvas.addEventListener("keydown", function (e) {
+    var used = true;
+    if (e.key === "ArrowLeft") targetYaw += 0.15;
+    else if (e.key === "ArrowRight") targetYaw -= 0.15;
+    else if (e.key === "ArrowUp") targetPitch = Math.min(0.75, targetPitch + 0.08);
+    else if (e.key === "ArrowDown") targetPitch = Math.max(-0.35, targetPitch - 0.08);
+    else if (e.key === "+" || e.key === "=") targetDist = Math.max(7, targetDist - 1);
+    else if (e.key === "-" || e.key === "_") targetDist = Math.min(22, targetDist + 1);
+    else used = false;
+    if (used) { e.preventDefault(); lastInteract = performance.now(); hideHint(); }
+  });
+
+  function resize() {
+    var w = window.innerWidth, h = window.innerHeight;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  var clock = new THREE.Clock();
+  var fpsEl = document.getElementById("fps");
+  var frames = 0, fpsSince = performance.now();
+  var running = true, rafId = 0;
+
+  // Pause drawing when the tab is hidden, so a background tab costs nothing
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) { running = false; cancelAnimationFrame(rafId); clock.stop(); }
+    else if (!running) { running = true; clock.start(); frames = 0; fpsSince = performance.now(); rafId = requestAnimationFrame(tick); }
+  });
+
+  function tick() {
+    if (!running) return;
+    var t = clock.getElapsedTime();
+
+    // Live frame-rate meter, refreshed twice a second
+    frames++;
+    var now = performance.now();
+    if (now - fpsSince >= 500) {
+      fpsEl.textContent = String(Math.round(frames * 1000 / (now - fpsSince)));
+      frames = 0; fpsSince = now;
+    }
+    // gentle auto-spin when idle
+    if (!reduceMotion && performance.now() - lastInteract > 3000) targetYaw += 0.0015;
+    yaw += (targetYaw - yaw) * 0.1;
+    pitch += (targetPitch - pitch) * 0.1;
+    dist += (targetDist - dist) * 0.1;
+    placeCamera();
+
+    if (!reduceMotion) {
+      for (var i = 0; i < flags.length; i++) {
+        var m = flags[i], pos = m.geometry.attributes.position, base = m.userData.base, ph = m.userData.phase;
+        for (var v = 0; v < pos.count; v++) {
+          var bx = base[v * 3], by = base[v * 3 + 1];
+          var depth = -by / flagH; // 0 at the string, 1 at the bottom
+          var wave = Math.sin(t * 2.2 + ph + bx * 2.5) * 0.18 * depth + Math.sin(t * 1.1 + ph) * 0.12 * depth;
+          pos.array[v * 3 + 2] = wave;
+        }
+        pos.needsUpdate = true;
+        m.rotation.y = Math.sin(t * 0.9 + ph) * 0.12;
+      }
+    }
+    if (!reduceMotion) {
+      for (var j = 0; j < bulbs.length; j++) {
+        var k = 0.38 + 0.05 * Math.sin(t * 3 + bulbs[j].userData.phase);
+        bulbs[j].scale.set(k, k, 1);
+      }
+    }
+    renderer.render(scene, camera);
+    rafId = requestAnimationFrame(tick);
+  }
+  rafId = requestAnimationFrame(tick);
+})();
+</script>
+</body>
+</html>
