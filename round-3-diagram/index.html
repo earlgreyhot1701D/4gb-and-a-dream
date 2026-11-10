@@ -48,9 +48,9 @@
   .path { position: relative; }
   .track, .thread { position: absolute; left: 25px; width: 4px; border-radius: 2px; top: 27px; }
   .track { bottom: 27px; background: rgba(232,224,204,0.14); }
-  .thread { height: 0; background: var(--turq); box-shadow: 0 0 10px rgba(31,181,183,0.7); transition: height 1.1s ease; }
+  .thread { height: 0; background: var(--turq); box-shadow: 0 0 10px rgba(31,181,183,0.7); transition: height 1.6s ease; }
   .spark { position: absolute; left: 17px; top: 17px; width: 20px; height: 20px; border-radius: 50%;
-    background: radial-gradient(circle, #fff 0 25%, var(--turq) 45%, rgba(31,181,183,0) 72%); transition: top 1.1s ease; pointer-events: none; z-index: 3; }
+    background: radial-gradient(circle, #fff 0 25%, var(--turq) 45%, rgba(31,181,183,0) 72%); transition: top 1.6s ease; pointer-events: none; z-index: 3; }
   .cutline { display: none; position: absolute; left: 23px; width: 8px; z-index: 2; background: repeating-linear-gradient(to bottom, var(--ember) 0 6px, var(--navy) 6px 12px); border-radius: 2px; }
   .offline .cutline { display: block; }
 
@@ -189,6 +189,8 @@
   var reduceMotion = false;
   try { reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches; } catch (e) {}
 
+  // Time on each step during autoplay: long enough to read the card and the caption
+  var STEP_MS = 6000;
   var i = 0, playing = false, offline = false, timer = 0;
 
   // Center of a step's numbered node, measured from the top of the path box
@@ -200,7 +202,28 @@
   var firstRender = true;
   function scrollToStep(el) {
     if (firstRender) return;
-    try { el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" }); } catch (e) { el.scrollIntoView(); }
+    var rect = el.getBoundingClientRect();
+    var dockH = document.querySelector(".dock").offsetHeight;
+    // Aim to put the step just below the pinned controls, a little above center
+    var target = window.scrollY + rect.top - dockH - Math.max(0, (window.innerHeight - dockH - rect.height) * 0.35);
+    target = Math.max(0, target);
+    if (reduceMotion) { window.scrollTo(0, target); return; }
+    gentleScroll(target, 1400);
+  }
+
+  // A slow, eased scroll so the eye can follow the thread
+  var scrollAnim = 0;
+  function gentleScroll(to, ms) {
+    cancelAnimationFrame(scrollAnim);
+    var from = window.scrollY, start = performance.now(), dist = to - from;
+    if (Math.abs(dist) < 2) return;
+    function stepFrame() {
+      var t = Math.max(0, Math.min(1, (performance.now() - start) / ms));
+      var ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+      window.scrollTo(0, from + dist * ease);
+      if (t < 1) scrollAnim = requestAnimationFrame(stepFrame);
+    }
+    scrollAnim = requestAnimationFrame(stepFrame);
   }
 
   function render() {
@@ -235,7 +258,7 @@
     playBtn.setAttribute("aria-pressed", on ? "true" : "false");
     playBtn.textContent = on ? "Pause" : "Replay ↺";
     clearInterval(timer);
-    if (on) timer = setInterval(advance, 2400);
+    if (on) timer = setInterval(advance, STEP_MS);
   }
 
   // Any click, tap, key, or manual scroll by the reader stops autoplay. They take over.
