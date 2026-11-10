@@ -104,7 +104,7 @@
   <div class="dock">
   <div class="controls">
     <button id="next" type="button">Next step →</button>
-    <button id="play" class="ghost" type="button" aria-pressed="false">Autoplay</button>
+    <button id="play" class="ghost" type="button" aria-pressed="false">Replay ↺</button>
     <button id="wifi" class="ghost" type="button" aria-pressed="false">Drop the Wi-Fi</button>
   </div>
 
@@ -233,13 +233,28 @@
   function setPlaying(on) {
     playing = on;
     playBtn.setAttribute("aria-pressed", on ? "true" : "false");
-    playBtn.textContent = on ? "Pause" : "Autoplay";
+    playBtn.textContent = on ? "Pause" : "Replay ↺";
     clearInterval(timer);
     if (on) timer = setInterval(advance, 2400);
   }
 
-  nextBtn.addEventListener("click", function () { advance(); if (playing) setPlaying(true); });
-  playBtn.addEventListener("click", function () { setPlaying(!playing); });
+  // Any click, tap, key, or manual scroll by the reader stops autoplay. They take over.
+  function readerTookOver(e) {
+    if (!playing) return;
+    if (e && e.target && e.target.closest && e.target.closest("#play")) return;
+    setPlaying(false);
+  }
+  document.addEventListener("pointerdown", readerTookOver, true);
+  document.addEventListener("keydown", readerTookOver, true);
+  document.addEventListener("wheel", readerTookOver, { capture: true, passive: true });
+  document.addEventListener("touchmove", readerTookOver, { capture: true, passive: true });
+
+  nextBtn.addEventListener("click", function () { advance(); });
+  playBtn.addEventListener("click", function () {
+    if (playing) { setPlaying(false); return; }
+    // Replay starts the walkthrough from step 01
+    i = -1; advance(); setPlaying(true);
+  });
   wifiBtn.addEventListener("click", function () {
     offline = !offline;
     path.classList.toggle("offline", offline);
