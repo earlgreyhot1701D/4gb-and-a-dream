@@ -105,7 +105,7 @@
   <div class="controls">
     <button id="next" type="button">Next step →</button>
     <button id="play" class="ghost" type="button" aria-pressed="false">Replay ↺</button>
-    <button id="wifi" class="ghost" type="button" aria-pressed="false">Drop the Wi-Fi</button>
+    <button id="wifi" class="ghost" type="button" aria-pressed="false">What if the Wi-Fi drops?</button>
   </div>
 
   <p class="caption" id="caption" aria-live="polite">Press Next step to follow the thread.</p>
@@ -259,7 +259,7 @@
     offline = !offline;
     path.classList.toggle("offline", offline);
     wifiBtn.setAttribute("aria-pressed", offline ? "true" : "false");
-    wifiBtn.textContent = offline ? "Bring the Wi-Fi back" : "Drop the Wi-Fi";
+    wifiBtn.textContent = offline ? "Bring the Wi-Fi back" : "What if the Wi-Fi drops?";
     if (offline) { render(); }
     else { caption.textContent = "Wi-Fi's back. Everything Claude did while you were gone is waiting in the chat and on GitHub."; }
   });

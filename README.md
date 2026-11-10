@@ -14,7 +14,7 @@ This is the companion repo for the dev.to article *A Small Laptop Is a Full Buil
 |---|---|---|---|
 | 1 | [Necesito](https://github.com/earlgreyhot1701D/necesito) | A live app with no editor | Its own repo |
 | 2 | Papel picado, in 3D | Interactive 3D, drawn by the laptop you're on | `round-2-3d/` |
-| 3 | The bootstrapping path | An animated diagram of every step, with a button that drops the Wi-Fi | `round-3-diagram/` |
+| 3 | The bootstrapping path | An animated diagram of every step, with a "What if the Wi-Fi drops?" button | `round-3-diagram/` |
 | 4 | Demo video | Made without video software | Coming soon |
 
 ## The kit
@@ -43,7 +43,7 @@ Building happened in the cloud. Drawing happens on your device, so this round is
 Six steps from a laptop to a live link, colored by where each one runs: on the laptop, in Claude's cloud workspace, or on GitHub. Only two of the six happen on the laptop.
 
 - **Play, pause, or step through** with the buttons. Captions are read aloud by screen readers.
-- **Drop the Wi-Fi** cuts the laptop's link and shows the cloud steps carrying on without it, which is what happened during the Necesito build.
+- **What if the Wi-Fi drops?** cuts the laptop's link and shows the cloud steps carrying on without it, which is what happened during the Necesito build.
 - A glowing **thread** unspools to the current step, so your eye follows the path. Steps behind it fill in, and steps ahead stay dim.
 - Styled in the [Clew Labs](https://clewlabs.org) colors. The thread is the clew.
 - Plain HTML, CSS, and a little JavaScript. No libraries.
